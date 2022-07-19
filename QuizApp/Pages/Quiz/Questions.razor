@@ -1,0 +1,36 @@
+@page "/Questions/"
+@page "/Questions/{category}"
+@inject JsonToModel Quiz
+
+<div class="text-center">
+@foreach (var item in Quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.medium, 10).Results)
+{
+    IncorrectAnswers = item.IncorrectAnswers;
+    IncorrectAnswers.Add(item.CorrectAnswer);
+
+    var randomized = IncorrectAnswers.OrderBy(item => rnd.Next()).ToList();
+   
+    <h4 class="mb-15">@item.Question</h4>
+
+    <div class="col-12">
+    @foreach (var answer in randomized)
+    {
+        <div>
+        <button class="btn btn-success btn-block mb-2" style="width: 160px">@answer</button>
+        </div>
+    }
+    </div>
+
+}
+</div>
+@code {
+
+
+    [ParameterAttribute]
+    public string category { get; set; }
+    public List<string> Question { get; set; }
+    public List<string> IncorrectAnswers { get; set; }
+    public string CorrectAnswer { get; set; }
+    public string Q { get; set; }
+    public Random rnd = new Random();
+}
