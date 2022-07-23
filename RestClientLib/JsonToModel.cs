@@ -8,7 +8,7 @@ namespace RestClientLib
 {
     public class JsonToModel : IJsonToModel
     {
-        public Questions GetQuestions(Category category = 0, Difficulty difficulty = 0, int amount = 10, string sessionToken = "")
+        public async Task<Questions> GetQuestions(Category category = 0, Difficulty difficulty = 0, int amount = 10, string sessionToken = "")
         {
             RestClient client = new();
             var data = client.GetData(category, difficulty, amount, sessionToken);
