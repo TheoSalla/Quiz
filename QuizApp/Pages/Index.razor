@@ -31,8 +31,7 @@
 
     public void GoToCategory(string category)
     {
-        System.Console.WriteLine("You clicked");
-        System.Console.WriteLine("Category " + category);
+        System.Console.WriteLine("You clicked " + category);
         _navigationManager.NavigateTo($"/Questions/{category}");
 
     }

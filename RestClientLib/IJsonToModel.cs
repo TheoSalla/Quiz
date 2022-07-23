@@ -7,6 +7,6 @@ namespace RestClientLib
 {
     public interface IJsonToModel
     {
-        Questions GetQuestions(Category category, Difficulty difficulty, int amount, string sessionToken);
+        Task<Questions> GetQuestions(Category category, Difficulty difficulty, int amount, string sessionToken);
     }
 }

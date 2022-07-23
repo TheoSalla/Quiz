@@ -1,127 +1,134 @@
 @page "/Questions/"
 @page "/Questions/{category}"
-@inject JsonToModel Quiz
+@inject IJsonToModel _quiz
 @inject NavigationManager _navigationManager
 
-@if (!finish)
-{
-    <label>Question @(counter + 1):</label>
-    <div>
-    @Qs[counter]
-</div>
-    <div>
-    @foreach (var a in Answers[counter])
+<div class="text-center">
+    <div hidden=@finishLoading>
+        <img src="images/work-computer.gif" style="border-radius: 20%;">
+    </div>
+
+    @if (finishLoading)
+    {
+
+        @if (!finishWithQuiz)
         {
+            <label>Question @(counter + 1):</label>
             <div>
-                <button @onclick="@(e => NewQuestion(a))" class="btn btn-success mb-2" style="width: 160px">@a</button>
+        @questionsList[counter]
+    </div>
+            <div>
+        @foreach (var a in allAnswers[counter])
+                {
+                    <div>
+                        <button @onclick="@(e => NewQuestion(a))" class="btn btn-success mb-2" style="width: 160px">@a</button>
+                    </div>
+                }
             </div>
         }
-    </div>
-}
-else
-{
-    <h1>
-    Here is the result:
-</h1>
-    @foreach (var item in Qs)
-    {
-        <h3>@item</h3>
-        @foreach (var answer in Answers[answerCount])
-        {
-            @if (answer == CorrectAnswer[answerCount])
-            {
-                <div class="text-success">@answer</div>
-            }
-            else
-            {
-                <div>@answer</div>
-            }
-
-        }
-        @if (UserAnswers[answerCount] == CorrectAnswer[answerCount])
-        {
-            <div class="text-success">You answered: @UserAnswers[answerCount]</div>
-        }
         else
         {
-            <div class="text-danger">You answered: @UserAnswers[answerCount]</div>
+            <h1>
+                Here is the result:
+            </h1>
+            @foreach (var item in questionsList)
+            {
+                <h3>@item</h3>
+                @foreach (var answer in allAnswers[counter])
+                {
+                    @if (answer == correctAnswers[counter])
+                    {
+                        <div class="text-success">@answer</div>
+                    }
+                    else
+                    {
+                        <div>@answer</div>
+                    }
+                }
+                @if (userAnswers[counter] == correctAnswers[counter])
+                {
+                    <div class="text-success">You answered: @userAnswers[counter]</div>
+                }
+                else
+                {
+                    <div class="text-danger">You answered: @userAnswers[counter]</div>
+                }
+                counter++;
+            }
+            <button @onclick="BackToMainPage" class="btn btn-dark">Back</button>
         }
-
-        @if (UserAnswers[answerCount] == CorrectAnswer[answerCount])
-        {
-            System.Console.WriteLine("Correct");
-        }
-        else
-        {
-            System.Console.WriteLine("Wrong");
-        }
-        answerCount++;
     }
+</div>
 
-    <button @onclick="BackToMainPage" class="btn btn-dark">Back</button>
-}
 @code {
     [ParameterAttribute]
     public string category { get; set; }
-    public List<List<string>> Answers { get; set; } = new();
-    public List<string> CorrectAnswer { get; set; } = new();
-    private List<string> UserAnswers = new();
-    public Random rnd = new();
+    private List<List<string>> allAnswers = new();
+    private List<string> correctAnswers = new();
+    private List<string> userAnswers = new();
+    private List<string> questionsList = new();
     private int counter = 0;
-    private int questionCount = 0;
-    private int answerCount = 0;
-    private bool finish = false;
+    private bool finishWithQuiz = false;
+    private bool finishLoading = false;
 
-    List<string> Qs = new();
-    protected override void OnInitialized()
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        foreach (var item in Quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.medium, 2).Results)
+        if (firstRender)
         {
-            Qs.Add(item.Question);
-            Answers.Add(item.IncorrectAnswers);  
-            CorrectAnswer.Add(item.CorrectAnswer);
-            questionCount++;
-        }
-        int counter = -1;
-        @* foreach (var item in Answers)
-        {
-            counter++;
-            item.Add(CorrectAnswer[counter]);
-            item.OrderBy(x => Guid.NewGuid()).ToList();
-            
-        } *@
+            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.medium, 5, "");
 
-        for (int i = 0; i < Answers.Count(); i++)
-        {
-            Answers[i].Add(CorrectAnswer[i]);
-            Answers[i] = Answers[i].OrderBy(x => Guid.NewGuid()).ToList();
+            foreach (var item in questionsFromApi.Results)
+            {
+                questionsList.Add(item.Question); // Adding sting of question to list
+                allAnswers.Add(item.IncorrectAnswers); // Adding list of incorrect answers
+                correctAnswers.Add(item.CorrectAnswer); // Adding string of correct answer to list
+            }
+            for (int i = 0; i < allAnswers.Count(); i++)
+            {
+                Console.WriteLine(allAnswers[i].Count());
+                if (allAnswers[i].Count() != 1)
+                {
+                    Console.WriteLine("Adding correct answer to list and randomize the answers");
+                    allAnswers[i].Add(correctAnswers[i]); // Adding correct answer to list of answers
+                    allAnswers[i] = allAnswers[i].OrderBy(x => Guid.NewGuid()).ToList(); // Randomize the list of answers
+                }
+                else
+                {
 
+                    allAnswers[i].Add(correctAnswers[i]);
+                    allAnswers[i].Sort();
+                    allAnswers[i].Reverse();
+
+                    Console.WriteLine("This is a true or false question");
+                }
+
+            }
+
+            finishLoading = true;
+            StateHasChanged();
         }
+
     }
-
     private void NewQuestion(string answer)
     {
-        if (counter == (questionCount - 1))
+        if (counter == (questionsList.Count() - 1))
         {
-            UserAnswers.Add(answer);
-            finish = true;
-            System.Console.WriteLine("BE HERE");
-            @* _navigationManager.NavigateTo($"/Questions/result"); *@
+            userAnswers.Add(answer);
+            finishWithQuiz = true;
+            counter = 0;
         }
         else
         {
-            System.Console.WriteLine("User answer: " + answer);
-            UserAnswers.Add(answer);
-            System.Console.WriteLine("New question being serviced!");
+            userAnswers.Add(answer);
             counter++;
         }
 
-        System.Console.WriteLine("Question count: " + questionCount);
-        System.Console.WriteLine("Counter: " + counter);
     }
     private void BackToMainPage()
     {
-        _navigationManager.NavigateTo("/", true);
+        counter = 0;
+        _navigationManager.NavigateTo("/");
 
     }
 }
