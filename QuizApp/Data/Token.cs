@@ -10,13 +10,6 @@ namespace QuizApp.Data
     {
         public string token { get; set; }
 
-        public string GetToken()
-        {
-            var token = SessionToken.GenerateSessionToken();
-            System.Console.WriteLine(token);
-            this.token = token;
-            return this.token;
-        }
         public Token()
         {
             var token = SessionToken.GenerateSessionToken();

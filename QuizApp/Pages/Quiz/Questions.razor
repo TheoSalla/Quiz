@@ -81,7 +81,7 @@
     {
         if (firstRender)
         {
-            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.everyDifficulty, 10, token.token);
+            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.hard, 10, token.token);
 
             foreach (var item in questionsFromApi.Results)
             {
