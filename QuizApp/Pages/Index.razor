@@ -1,5 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager _navigationManager
+@using QuizApp.Data
+@inject Token token 
 
 <PageTitle>Quiz</PageTitle>
 
@@ -23,7 +25,6 @@
     <img src="images/donald.gif" style="border-radius: 20%;">
 </div>
 
-
 @code {
     public string Computer { get; set; } = "Computer";
     public string Movie { get; set; } = "Movie";
@@ -35,4 +36,6 @@
         _navigationManager.NavigateTo($"/Questions/{category}");
 
     }
+
+
 }
