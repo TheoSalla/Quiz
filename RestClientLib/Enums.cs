@@ -12,9 +12,12 @@ namespace RestClientLib
     }
     public enum Difficulty
     {
+
+        everyDifficulty,
         easy,
         medium,
         hard
+        
 
     }
     public enum Type

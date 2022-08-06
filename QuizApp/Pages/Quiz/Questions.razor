@@ -1,6 +1,8 @@
 @page "/Questions/"
 @page "/Questions/{category}"
 @inject IJsonToModel _quiz
+@using QuizApp.Data
+@inject Token token 
 @inject NavigationManager _navigationManager
 
 <div class="text-center">
@@ -15,12 +17,14 @@
         {
             <label>Question @(counter + 1):</label>
             <div>
-        @questionsList[counter]
+         <p>Difficulty: @difficulty[counter]</p>       
+        <p>@questionsList[counter]</p>
     </div>
             <div>
         @foreach (var a in allAnswers[counter])
                 {
                     <div>
+                    
                         <button @onclick="@(e => NewQuestion(a))" class="btn btn-success mb-2" style="width: 160px">@a</button>
                     </div>
                 }
@@ -70,16 +74,18 @@
     private int counter = 0;
     private bool finishWithQuiz = false;
     private bool finishLoading = false;
+    private List<string> difficulty = new();
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.medium, 5, "");
+            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.everyDifficulty, 10, token.token);
 
             foreach (var item in questionsFromApi.Results)
             {
+                difficulty.Add(item.Difficulty);
                 questionsList.Add(item.Question); // Adding sting of question to list
                 allAnswers.Add(item.IncorrectAnswers); // Adding list of incorrect answers
                 correctAnswers.Add(item.CorrectAnswer); // Adding string of correct answer to list

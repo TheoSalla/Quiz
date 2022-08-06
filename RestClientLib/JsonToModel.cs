@@ -10,8 +10,15 @@ namespace RestClientLib
     {
         public async Task<Questions> GetQuestions(Category category = 0, Difficulty difficulty = 0, int amount = 10, string sessionToken = "")
         {
-            RestClient client = new();
-            var data = client.GetData(category, difficulty, amount, sessionToken);
+            Settings settings = new();
+            settings.amount = amount;
+            settings.category = category;
+            settings.difficulty = difficulty;
+            settings.sessionToken = sessionToken;
+
+            RestClient client = new(settings);
+            
+            var data = client.GetData2();
 
             JsonSerializerOptions serializerOptions = new()
             {

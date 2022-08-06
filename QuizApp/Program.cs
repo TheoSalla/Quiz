@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using QuizApp;
 using QuizApp.Data;
 using RestClientLib;
 
@@ -10,7 +11,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddTransient<IJsonToModel, JsonToModel>();
-
+builder.Services.AddScoped<Token>();
 
 var app = builder.Build();
 
@@ -28,7 +29,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+app.Hello();
 
 app.Run();
