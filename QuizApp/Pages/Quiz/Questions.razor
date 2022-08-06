@@ -2,68 +2,100 @@
 @page "/Questions/{category}"
 @inject IJsonToModel _quiz
 @using QuizApp.Data
-@inject Token token 
+@inject Token token
 @inject NavigationManager _navigationManager
 
 <div class="text-center">
     <div hidden=@finishLoading>
         <img src="images/work-computer.gif" style="border-radius: 20%;">
     </div>
-
-    @if (finishLoading)
+</div>
+@if (finishLoading)
+{
+    @if (!finishWithQuiz)
     {
-
-        @if (!finishWithQuiz)
-        {
-            <label>Question @(counter + 1):</label>
-            <div>
-         <p>Difficulty: @difficulty[counter]</p>       
+        <div class="text-center">
+    <label>Question @(counter + 1):</label>
+    <div>
+        <p>Difficulty: @difficulty[counter]</p>
         <p>@questionsList[counter]</p>
     </div>
-            <div>
+    <div>
         @foreach (var a in allAnswers[counter])
                 {
                     <div>
-                    
+
                         <button @onclick="@(e => NewQuestion(a))" class="btn btn-success mb-2" style="width: 160px">@a</button>
                     </div>
                 }
             </div>
-        }
-        else
-        {
-            <h1>
-                Here is the result:
-            </h1>
-            @foreach (var item in questionsList)
+        </div>
+    }
+    else
+    {
+        <h1>
+    Result:
+</h1>
+
+        <table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Question</th>
+            <th scope="col">Your Answer</th>
+            <th scope="col">Correct Answer</th>
+            <th scope="col">Incorrect Answers</th>
+        </tr>
+    </thead>
+
+    @foreach (var question in questionsList)
             {
-                <h3>@item</h3>
-                @foreach (var answer in allAnswers[counter])
-                {
-                    @if (answer == correctAnswers[counter])
+                <tbody>
+
+                    @if (userAnswers[counter] == correctAnswers[counter])
                     {
-                        <div class="text-success">@answer</div>
+                        succesOrNot = "table-success";
+                        userCorrectAnswers++;
                     }
                     else
                     {
-                        <div>@answer</div>
+                        succesOrNot = "table-danger";
                     }
-                }
-                @if (userAnswers[counter] == correctAnswers[counter])
-                {
-                    <div class="text-success">You answered: @userAnswers[counter]</div>
-                }
-                else
-                {
-                    <div class="text-danger">You answered: @userAnswers[counter]</div>
-                }
+                    <tr class="@succesOrNot">
+                        <th scope="row">@(counter + 1)</th>
+                        <td>@question</td>
+                        <td>@userAnswers[counter]</td>
+                        @foreach (var answer in allAnswers[counter])
+                        {
+                            @if (answer == correctAnswers[counter])
+                            {
+                                <td>@answer</td>
+                            }
+                        }
+                        <td>
+                            @foreach (var answer in allAnswers[counter])
+                            {
+                                @if (answer != correctAnswers[counter])
+                                {
+                                    <span class="m-2">@answer</span>
+
+                                }
+                            }
+                        </td>
+
+                    </tr>
+                </tbody>
                 counter++;
             }
-            <button @onclick="BackToMainPage" class="btn btn-dark">Back</button>
-        }
-    }
-</div>
+        </table>
 
+        <div>You got @userCorrectAnswers of @questionsList.Count() correct answers</div>
+        <br>
+        <div>
+            <button @onclick="BackToMainPage" class="btn btn-dark">Back</button>
+        </div>
+    }
+}
 @code {
     [ParameterAttribute]
     public string category { get; set; }
@@ -71,17 +103,19 @@
     private List<string> correctAnswers = new();
     private List<string> userAnswers = new();
     private List<string> questionsList = new();
+    private int userCorrectAnswers = 0;
     private int counter = 0;
     private bool finishWithQuiz = false;
     private bool finishLoading = false;
     private List<string> difficulty = new();
-
+    private string succesOrNot;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.hard, 10, token.token);
+            var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.easy, 2,
+            token.token);
 
             foreach (var item in questionsFromApi.Results)
             {
@@ -102,20 +136,18 @@
                 else
                 {
 
-                    // If the question is a boolean type        
+                    // If the question is a boolean type
                     allAnswers[i].Add(correctAnswers[i]);
                     allAnswers[i].Sort();
                     allAnswers[i].Reverse();
 
                     Console.WriteLine("This is a true or false question");
                 }
-
             }
 
             finishLoading = true;
             StateHasChanged();
         }
-
     }
     private void NewQuestion(string answer)
     {
@@ -130,7 +162,6 @@
             userAnswers.Add(answer);
             counter++;
         }
-
     }
     private void BackToMainPage()
     {
