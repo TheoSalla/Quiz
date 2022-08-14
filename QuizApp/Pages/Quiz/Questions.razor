@@ -1,40 +1,52 @@
-@page "/Questions/"
-@page "/Questions/{category}"
+@page "/Questions/{category?}"
 @inject IJsonToModel _quiz
 @using QuizApp.Data
 @inject Token token
 @inject NavigationManager _navigationManager
 
+
+
 <div class="text-center">
+
     <div hidden=@finishLoading>
-        <img src="images/work-computer.gif" style="border-radius: 20%;">
+        <br>
+        <br>
+        <br>
+        @* <img src="images/work-computer.gif" style="border-radius: 20%; width:230px; height:230px"> *@
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
 </div>
 @if (finishLoading)
 {
     @if (!finishWithQuiz)
     {
+        <br>
         <div class="text-center">
-    <label>Question @(counter + 1):</label>
+    <h3>Question @(counter + 1):</h3>
     <div>
         <p>Difficulty: @difficulty[counter]</p>
         <p>@questionsList[counter]</p>
     </div>
     <div>
-        @foreach (var a in allAnswers[counter])
-                {
-                    <div>
-
-                        <button @onclick="@(e => NewQuestion(a))" class="btn btn-success mb-2" style="width: 160px">@a</button>
-                    </div>
-                }
+        <div class="list-group ">
+            @foreach (var answer in allAnswers[counter])
+                    {
+                        <div>
+                            <button type="button" @onclick="@(e => NewQuestion(answer))"
+                    class="list-group-item list-group-item-action list-group-item-dark d-inline-block"
+                    style="width: 160px">@answer</button>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     }
     else
     {
 
-<table class="table table-hover table-bordered table-sm caption-top">
+        <table class="table table-hover table-bordered table-sm caption-top">
     <caption>Result:</caption>
     <thead class="table-dark">
         <tr>
@@ -107,6 +119,10 @@
     private bool finishLoading = false;
     private List<string> difficulty = new();
     private string succesOrNot;
+    protected override async Task OnParametersSetAsync()
+    {
+        category = category ?? "computer";
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
