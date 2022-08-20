@@ -24,14 +24,14 @@
     {
         <br>
         <div class="text-center">
-    <h3>Question @(counter + 1):</h3>
-    <div>
-        <p>Difficulty: @difficulty[counter]</p>
-        <p>@questionsList[counter]</p>
-    </div>
-    <div>
-        <div class="list-group ">
-            @foreach (var answer in allAnswers[counter])
+            <h3>Question @(counter + 1):</h3>
+            <div>
+                <p>Difficulty: @difficulty[counter]</p>
+                <p>@questionsList[counter]</p>
+            </div>
+            <div>
+                <div class="list-group ">
+                    @foreach (var answer in allAnswers[counter])
                     {
                         <div>
                             <button type="button" @onclick="@(e => NewQuestion(answer))"
@@ -47,18 +47,18 @@
     {
 
         <table class="table table-hover table-bordered table-sm caption-top">
-    <caption>Result:</caption>
-    <thead class="table-dark">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Question</th>
-            <th scope="col">Your Answer</th>
-            <th scope="col">Correct Answer</th>
-            <th scope="col">Incorrect Answers</th>
-        </tr>
-    </thead>
+            <caption>Result:</caption>
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Question</th>
+                    <th scope="col">Your Answer</th>
+                    <th scope="col">Correct Answer</th>
+                    <th scope="col">Incorrect Answers</th>
+                </tr>
+            </thead>
 
-    @foreach (var question in questionsList)
+            @foreach (var question in questionsList)
             {
                 <tbody class="table-group-divider">
 
@@ -75,22 +75,13 @@
                         <th scope="row">@(counter + 1)</th>
                         <td>@question</td>
                         <td>@userAnswers[counter]</td>
-                        @foreach (var answer in allAnswers[counter])
-                        {
-                            @if (answer == correctAnswers[counter])
-                            {
-                                <td>@answer</td>
-                            }
-                        }
-                        <td>
-                            @foreach (var answer in allAnswers[counter])
-                            {
-                                @if (answer != correctAnswers[counter])
-                                {
-                                    <span class="m-1">@answer</span>
 
-                                }
-                            }
+                        <td>
+                            @(string.Join(",", allAnswers[counter].Where(x => x == correctAnswers[counter])))
+                        </td>
+
+                        <td>
+                            <span class="m-2">@(string.Join(" ", allAnswers[counter].Where(x => x != correctAnswers[counter])))</span>
                         </td>
 
                     </tr>
@@ -106,6 +97,7 @@
         </div>
     }
 }
+
 @code {
     [ParameterAttribute]
     public string category { get; set; }
@@ -129,7 +121,7 @@
         if (firstRender)
         {
             var questionsFromApi = await _quiz.GetQuestions(Enum.Parse<Category>(category.ToLower()), Difficulty.easy, 2,
-            token.token);
+            token.SessionToken);
 
             foreach (var item in questionsFromApi.Results)
             {
@@ -155,7 +147,7 @@
                     allAnswers[i].Sort();
                     allAnswers[i].Reverse();
 
-                    Console.WriteLine("This is a true or false question");
+                    Console.WriteLine("This is a true or false question!");
                 }
             }
 
@@ -183,4 +175,5 @@
         _navigationManager.NavigateTo("/");
 
     }
+
 }

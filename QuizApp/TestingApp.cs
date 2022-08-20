@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace QuizApp
 {
     public static class TestingApp
@@ -11,6 +6,6 @@ namespace QuizApp
         {
             System.Console.WriteLine("Hello from extension method");
         }
-        
+
     }
 }

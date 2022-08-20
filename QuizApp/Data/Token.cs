@@ -1,20 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using RestClientLib;
-
 namespace QuizApp.Data
 {
     public class Token
     {
-        public string token { get; set; }
+        private string sessionToken;
+
+        public string SessionToken { get => sessionToken; set => sessionToken = value; }
 
         public Token()
         {
-            var token = SessionToken.GenerateSessionToken();
+            var token = RestClientLib.SessionToken.GenerateSessionToken();
             System.Console.WriteLine("Generating token :" + token);
-           this.token = token;
+            this.SessionToken = token;
         }
 
     }
