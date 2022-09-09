@@ -4,7 +4,7 @@ namespace QuizApp
     {
         public static void Hello(this WebApplication app)
         {
-            System.Console.WriteLine("Hello from extension method");
+            Console.WriteLine("Hello from extension method");
         }
 
     }

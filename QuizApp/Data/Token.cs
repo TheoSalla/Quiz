@@ -9,7 +9,7 @@ namespace QuizApp.Data
         public Token()
         {
             var token = RestClientLib.SessionToken.GenerateSessionToken();
-            System.Console.WriteLine("Generating token :" + token);
+            Console.WriteLine("Generating token :" + token);
             this.SessionToken = token;
         }
 
